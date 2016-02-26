@@ -1,0 +1,28 @@
+{
+  "name": "react-minimal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "watchify src/main.jsx -v -t [ babelify --presets [react] ] -o public/js/main.js"
+  },
+  "author": "Maciej Sitko",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-preset-react": "^6.3.13",
+    "babelify": "^7.2.0",
+    "browserify": "^12.0.2"
+  },
+  "dependencies": {
+    "babel-register": "^6.3.13",
+    "email-validator": "^1.0.3",
+    "express": "^4.13.3",
+    "history": "^1.17.0",
+    "morgan": "^1.6.1",
+    "react": "^0.14.6",
+    "react-dom": "^0.14.6",
+    "react-router": "^1.0.3",
+    "swig": "^1.4.2",
+    "whatwg-fetch": "^0.10.1"
+  }
+}
