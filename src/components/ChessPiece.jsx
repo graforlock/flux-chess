@@ -3,10 +3,23 @@ var React = require('react');
 
 var ChessPiece = React.createClass({
   chessPieceStyle : {
-      display: 'inline-block'
+      display: 'inline-block',
+      fontSize: '26px',
+      'fontWeight': 'bold',
+      textAlign: 'center',
+      color: 'white'
+
+  },
+  textStyle :{
+    position: 'relative',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    margin: '0',
+    'opacity' : '0',
+    cursor: 'default'
   },
   colorSwitch: function() {
-    switch(this.props.data[this.props.name].row % 2) {
+    switch(this.props.data.rnum % 2) {
       case 0:
         switch(this.props.index % 2) {
           case 0:

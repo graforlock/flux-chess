@@ -17,6 +17,7 @@
     "babel-register": "^6.3.13",
     "email-validator": "^1.0.3",
     "express": "^4.13.3",
+    "flux": "^2.1.1",
     "history": "^1.17.0",
     "morgan": "^1.6.1",
     "react": "^0.14.6",
