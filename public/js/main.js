@@ -23151,7 +23151,8 @@ var chessStyles = {
   fontSize: '0',
   margin: '0 auto',
   position: 'fixed',
-  top: '0'
+  top: '0',
+  borderBottom: '20px solid gainsboro'
 };
 chessStyles.height = chessStyles.width;
 chessStyles.left = u.depixelise(chessStyles.width) / 2 + 'px';
@@ -23300,6 +23301,7 @@ var Knight = React.createClass({
     return {
       dragging: false,
       position: 'A-1',
+      moves: [],
       style: {},
       show: false
     };
@@ -23323,13 +23325,14 @@ var Knight = React.createClass({
     var coords = {};
     var validMovesList;
     this.setState({ dragging: true });
+    this.displayValidMoves(this.getValidMoves());
+
     window.addEventListener('mousemove', function (ev) {
       if (this.state.dragging === true) {
         target.style.left = ev.pageX - window.innerWidth / 30 + 'px';
         target.style.top = ev.pageY - window.innerWidth / 30 + 'px';
         coords = this.dragCalcPos(ev.pageX, ev.pageY);
         // console.log(this.getPosition(coords)[0]); // Gets which one do you drag over
-        this.displayValidMoves(this.getValidMoves());
         window.addEventListener('mouseup', function (ev) {
           validMovesList = this.getValidMoves().map(function (e) {
             return e.name;
@@ -23337,9 +23340,13 @@ var Knight = React.createClass({
           if (u.inArray(this.getPosition(coords)[0].name, validMovesList)) {
             this.setState({ position: this.getPosition(coords)[0].name });
             this.setState({ style: this.updateStyles() });
+          } else {
+            this.setState({ position: this.state.position });
+            this.setState({ style: this.updateStyles() });
           }
           this.setState({ show: false });
           this.setState({ dragging: false });
+          this.setState({ moves: [] });
         }.bind(this));
       }
     }.bind(this));
@@ -23408,33 +23415,45 @@ var Knight = React.createClass({
     var leftOffset = u.depixelise(this.props.size.left);
     var pieceSize = u.depixelise(this.pieceSize());
 
-    moves.map(function (move) {
+    var validMoves = moves.map(function (move, index) {
       // Try to shift to be a react component
       if (move !== false && this.state.show === false) {
-        div = document.createElement('div');
-        div.style.top = move.top + pieceSize / 4 + 'px';
-        div.style.left = leftOffset + (move.left + pieceSize / 4) + 'px';
-        div.style.height = pieceSize / 2 + 'px';
-        div.style.width = div.style.height;
-        div.style.zIndex = '0';
-        div.style.position = 'absolute';
-        div.style.background = 'rgb(42, 223, 169)';
-        div.style.backgroundImage = "url('img/tick.png')";
-        div.style.backgroundSize = '60%';
-        div.style.backgroundRepeat = 'no-repeat';
-        div.style.backgroundPosition = 'center center';
-        div.style.borderRadius = '100%';
-        div.style.boxSizing = 'border-box';
-        // div.style.boxShadow = '1px 1px 2.5px #666666';
-        document.body.appendChild(div);
+
+        var styles = {
+          top: move.top + pieceSize / 4 + 'px',
+          left: leftOffset + (move.left + pieceSize / 4) + 'px',
+          height: pieceSize / 2 + 'px',
+          width: pieceSize / 2 + 'px',
+          position: 'absolute',
+          background: 'rgb(42, 223, 169)',
+          backgroundImage: "url('img/tick.png')",
+          backgroundSize: '60%',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center center',
+          borderRadius: '100%',
+          boxSizing: 'border-box',
+          boxShadow: '1px 1px 2.5px #666666'
+        };
+        return React.createElement('div', { style: styles, key: index });
       }
     }.bind(this));
+    this.setState({ moves: validMoves });
     this.setState({ show: true });
   },
   render: function () {
     styleObject = this.state.style;
-    return React.createElement('div', { onMouseDown: this.dragFrom,
-      style: styleObject });
+    validMoves = this.state.moves;
+    return React.createElement(
+      'section',
+      null,
+      React.createElement('div', { onMouseDown: this.dragFrom,
+        style: styleObject }),
+      React.createElement(
+        'div',
+        null,
+        validMoves
+      )
+    );
   }
 });
 

@@ -9,7 +9,8 @@ var chessStyles = {
   fontSize: '0',
   margin: '0 auto',
   position: 'fixed',
-  top: '0'
+  top: '0',
+  borderBottom: '20px solid gainsboro'
 };
 chessStyles.height = chessStyles.width;
 chessStyles.left = (u.depixelise(chessStyles.width)/2) + 'px';
