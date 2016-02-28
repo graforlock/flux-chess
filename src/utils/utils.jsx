@@ -16,6 +16,9 @@ u.depixelise = function(pixeled) {
   return Number(pixeled.replace('px',''));
 };
 
+u.inArray = function(element, array) {
+  return array.indexOf(element) !== -1;
+};
 u.getChar = function(ccode, alphabet) {
   alphabet = alphabet || false;
   ccode = alphabet === true ? ccode + 96 : ccode;

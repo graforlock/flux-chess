@@ -4,19 +4,11 @@ var React = require('react');
 var ChessPiece = React.createClass({
   chessPieceStyle : {
       display: 'inline-block',
-      fontSize: '26px',
-      'fontWeight': 'bold',
+      position: 'absolute',
+      fontSize: '0',
       textAlign: 'center',
       color: 'white'
 
-  },
-  textStyle :{
-    position: 'relative',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    margin: '0',
-    'opacity' : '0',
-    cursor: 'default'
   },
   colorSwitch: function() {
     switch(this.props.data.rnum % 2) {
@@ -40,7 +32,9 @@ var ChessPiece = React.createClass({
   },
   getChessSize: function() {
     var styleObject = this.chessPieceStyle;
-    // parseInt and stuff needs to be a separate function.
+
+    styleObject.top = this.props.data.coords.top + 'px';
+    styleObject.left = this.props.data.coords.left + 'px';
     styleObject.background = this.colorSwitch();
     styleObject.height = (parseInt(this.props.size.height.replace('px','')) / 8) + 'px';
     styleObject.width = (parseInt(this.props.size.width.replace('px','')) / 8) + 'px';

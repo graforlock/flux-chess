@@ -9,10 +9,8 @@ var chessStyles = {
   fontSize: '0',
   margin: '0 auto',
   position: 'fixed',
-  top: '0',
-
+  top: '0'
 };
-
 chessStyles.height = chessStyles.width;
 chessStyles.left = (u.depixelise(chessStyles.width)/2) + 'px';
 
@@ -42,7 +40,6 @@ var Chess = React.createClass({
         };
         obj.coords = this.pieceCoords(obj.col-1,obj.rnum-1);
         obj.moves = this.setValidMoves(obj, settings.maxCol);
-        console.log(obj.moves);
         return {
             value: obj,
             name: pieceName
@@ -63,7 +60,7 @@ var Chess = React.createClass({
       validMoves.bottom = rowPos + 2 > maxCol ? false : u.getChar(rowPos+2,true) + '-' + item.col;
       validMoves.top = rowPos - 2 < 1 ? false : u.getChar(rowPos-2,true) + '-' + item.col;
 
-  return validMoves;
+    return validMoves;
 
   },
   calcSizes: function() {
@@ -72,20 +69,20 @@ var Chess = React.createClass({
       this.props.style = chessStyles;
   },
   render: function() {
-    console.log(chessStyles.offsetLeft);
       var chessPiece = this.state.positions.map(function(el,index) {
-        return <ChessPiece
-                      size={chessStyles}
-                      name={el.name}
-                      data={el.value}
-                      key={index}
-                      index={index}
-              />;
+        return <ChessPiece size={chessStyles} name={el.name}
+                           data={el.value}    key={index}
+                          index={index}
+               />;
       });
     return(
-      <section  style={chessStyles}>
-        {chessPiece}
-        <Knight size={chessStyles} positions={this.state.positions} />
+      <section>
+          <section  style={chessStyles}>
+            {chessPiece}
+          </section>
+        <section>
+          <Knight size={chessStyles} positions={this.state.positions} />
+        </section>
       </section>
     );
   }
