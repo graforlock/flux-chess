@@ -25,42 +25,56 @@ var Knight = React.createClass({
       return el.name === keyword;
     })[0].value.coords;
   },
-  dragFrom: function(e) {
+  dragStart: function(e) {
+
       e.preventDefault();
       var target = e.target;
       var coords = {};
       var validMovesList;
       this.setState({dragging: true});
       this.displayValidMoves(this.getValidMoves());
-
-        window.addEventListener('mousemove', function(ev) {
-          if(this.state.dragging === true) {
-            target.style.left = (ev.pageX-(window.innerWidth/30)) + 'px';
-            target.style.top = (ev.pageY-(window.innerWidth/30)) + 'px';
-            coords = this.dragCalcPos(ev.pageX,ev.pageY);
-            // console.log(this.getPosition(coords)[0]); // Gets which one do you drag over
-            window.addEventListener('mouseup', function(ev) {
-              validMovesList = this.getValidMoves().map(function(e) { return e.name; });
-              if(u.inArray(this.getPosition(coords)[0].name, validMovesList)) {
-                this.setState({position: this.getPosition(coords)[0].name });
-                this.setState({style: this.updateStyles()});
-              } else {
-                this.setState({position: this.state.position });
-                this.setState({style: this.updateStyles()});
-
-              }
-              this.setState({show: false});
-              this.setState({dragging: false});
-              this.setState({moves: []});
-            }.bind(this));
-          }
-      }.bind(this));
+      window.addEventListener('mousemove', this.dragMotion.bind(null,target));
   },
+  dragMotion: function(target,ev) {
+      if(this.state.dragging === true) {
+        target.style.left = (ev.pageX-(window.innerWidth/30)) + 'px';
+        target.style.top = (ev.pageY-(window.innerWidth/30)) + 'px';
+        coords = this.dragCalcPos(ev.pageX,ev.pageY);
+        window.addEventListener('mouseup', this.dragEnd.bind(null,target));
+      } else {
+
+      }
+  },
+  dragEnd: function(target,ev) {
+      validMovesList = this.getValidMoves().map(function(e) { return e.name; });
+      if(u.inArray(this.getPosition(coords)[0].name, validMovesList)) {
+        this.setState({position: this.getPosition(coords)[0].name });
+        this.setState({style: this.updateStyles()});
+      } else {
+        // if(valid === false) {
+          // this.replaceState(this.getInitialState());
+          // this.setState({style: this.updateStyles()});
+          // return;
+        // }
+        // this.setState({position: this.state.position });
+        // this.setState({style: this.updateStyles()});
+      }
+      this.setState({show: false});
+      this.setState({dragging: false});
+      this.setState({moves: []});
+      target.removeEventListener('mousedown', this.dragStart,false);
+      window.removeEventListener('mousemove', this.dragMotion,false);
+      window.removeEventListener('mouseup', this.dragEnd,false);
+    },
   dragCalcPos: function(valX,valY) {
     var colSize = u.depixelise(this.pieceSize());
     var offsetLeft = u.depixelise(this.props.size.left);
-
-    if( ((valY % colSize) > colSize/5) && ((valX % colSize) > colSize/5)) {
+    if( ((valY % colSize) > colSize/10) && ((valX % colSize) > colSize/10)) {
+    /* Here: colSize / 10
+       ---------->
+       Why: One tenth of the Knight area needs to pass through neutral area to acknowledge next position.
+       ---------->
+    */
       return {
           row: Math.ceil(valY / colSize),
           col: Math.ceil((valX - offsetLeft) / colSize)
@@ -151,7 +165,7 @@ var Knight = React.createClass({
     validMoves = this.state.moves;
     return(
       <section>
-        <div onMouseDown={this.dragFrom}
+        <div onMouseDown={this.dragStart}
              style={styleObject}>
         </div>
         <div>
