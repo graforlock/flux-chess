@@ -1,15 +1,17 @@
 var React = require('react');
 var u = require('../utils/utils.jsx');
 var settings = require('../constants/settings.jsx');
+var ValidMove = require('./ValidMove.jsx');
 
 var Knight = React.createClass({
   getInitialState: function() {
     return {
       dragging : false,
-      position: 'A-1',
+      position: '',
       moves: [],
       style: {},
-      show: false
+      show: false,
+      knight: null
     };
   },
   getPosition: function(coords) {
@@ -28,53 +30,44 @@ var Knight = React.createClass({
   dragStart: function(e) {
 
       e.preventDefault();
-      var target = e.target;
+      var target = this.setState({knight: e.target});
       var coords = {};
       var validMovesList;
       this.setState({dragging: true});
       this.displayValidMoves(this.getValidMoves());
-      window.addEventListener('mousemove', this.dragMotion.bind(null,target));
+      document.addEventListener('mousemove', this.dragMotion);
   },
-  dragMotion: function(target,ev) {
+  dragMotion: function(ev) {
       if(this.state.dragging === true) {
-        target.style.left = (ev.pageX-(window.innerWidth/30)) + 'px';
-        target.style.top = (ev.pageY-(window.innerWidth/30)) + 'px';
+        this.state.knight.style.left = (ev.pageX-(window.innerWidth/30)) + 'px';
+        this.state.knight.style.top = (ev.pageY-(window.innerWidth/30)) + 'px';
         coords = this.dragCalcPos(ev.pageX,ev.pageY);
-        window.addEventListener('mouseup', this.dragEnd.bind(null,target));
+        document.addEventListener('mouseup', this.dragEnd);
       } else {
 
       }
   },
   dragEnd: function(target,ev) {
+      var currentMove = this.state.position;
       validMovesList = this.getValidMoves().map(function(e) { return e.name; });
       if(u.inArray(this.getPosition(coords)[0].name, validMovesList)) {
         this.setState({position: this.getPosition(coords)[0].name });
-        this.setState({style: this.updateStyles()});
+        this.setState({moves: []});
       } else {
-        // if(valid === false) {
-          // this.replaceState(this.getInitialState());
-          // this.setState({style: this.updateStyles()});
-          // return;
-        // }
-        // this.setState({position: this.state.position });
-        // this.setState({style: this.updateStyles()});
+        this.setState({style: {}});
+        this.setState({style: this.updateStyles()});
+        this.setState({dragging: false});
+        this.setState({show: false});
+        return;
       }
       this.setState({show: false});
       this.setState({dragging: false});
-      this.setState({moves: []});
-      target.removeEventListener('mousedown', this.dragStart,false);
-      window.removeEventListener('mousemove', this.dragMotion,false);
-      window.removeEventListener('mouseup', this.dragEnd,false);
+
     },
   dragCalcPos: function(valX,valY) {
     var colSize = u.depixelise(this.pieceSize());
     var offsetLeft = u.depixelise(this.props.size.left);
-    if( ((valY % colSize) > colSize/10) && ((valX % colSize) > colSize/10)) {
-    /* Here: colSize / 10
-       ---------->
-       Why: One tenth of the Knight area needs to pass through neutral area to acknowledge next position.
-       ---------->
-    */
+    if( ((valY % colSize) > colSize/20) && ((valX % colSize) > colSize/20)) {
       return {
           row: Math.ceil(valY / colSize),
           col: Math.ceil((valX - offsetLeft) / colSize)
@@ -87,8 +80,17 @@ var Knight = React.createClass({
     return (parseInt(this.props.size.height.replace('px','')) / 8) + 'px';
   },
   componentWillMount: function() {
+    this.state.position = 'A-1';
     this.state.style = this.updateStyles();
   },
+  componentDidUpdate: function (props, state) {
+   if (this.state.dragging === false && this.state.knight !== null) {
+     this.state.knight.removeEventListener('mousedown', this.dragStart);
+     document.removeEventListener('mousemove', this.dragMotion);
+     document.removeEventListener('mouseup', this.dragEnd);
+   }
+   this.state.style = this.updateStyles();
+ },
   updateStyles: function() {
     var defaultStyles = {
         boxSizing: 'border-box',
@@ -138,22 +140,13 @@ var Knight = React.createClass({
       // Try to shift to be a react component
       if(move !== false && this.state.show === false) {
 
-        var styles = {
+        var sizes = {
           top: (move.top + (pieceSize /4) )  + 'px',
           left: (leftOffset + (move.left + pieceSize /4)) + 'px',
           height: (pieceSize/2) + 'px',
-          width: (pieceSize/2) + 'px',
-          position : 'absolute',
-          background : 'rgb(42, 223, 169)',
-          backgroundImage : "url('img/tick.png')",
-          backgroundSize : '60%',
-          backgroundRepeat : 'no-repeat',
-          backgroundPosition : 'center center',
-          borderRadius : '100%',
-          boxSizing : 'border-box',
-          boxShadow : '1px 1px 2.5px #666666'
+          width: (pieceSize/2) + 'px'
         };
-        return(<div style={styles} key={index}></div>);
+        return(<ValidMove size={sizes} key={index} />);
 
       }
     }.bind(this));
@@ -163,9 +156,10 @@ var Knight = React.createClass({
   render: function() {
     styleObject = this.state.style;
     validMoves = this.state.moves;
+    dragStart = this.state.dragging === false ? this.dragStart : null;
     return(
       <section>
-        <div onMouseDown={this.dragStart}
+        <div onMouseDown={dragStart}
              style={styleObject}>
         </div>
         <div>
