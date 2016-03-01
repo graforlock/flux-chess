@@ -1,13 +1,16 @@
 var React = require('react');
+var ValidMove = require('./ValidMove.jsx');
+var ChessActions = require('../actions/actions.jsx');
+var ChessStore = require('../stores/store.jsx');
+
 var u = require('../utils/utils.jsx');
 var settings = require('../constants/settings.jsx');
-var ValidMove = require('./ValidMove.jsx');
 
 var Knight = React.createClass({
   getInitialState: function() {
     return {
       dragging : false,
-      position: '',
+      position: ChessStore.getStored(),
       moves: [],
       style: {},
       show: false,
@@ -15,12 +18,13 @@ var Knight = React.createClass({
     };
   },
   getPosition: function(coords) {
-    //will get the chesspiece according to the position
     var row = coords.row;
     var col = coords.col;
-    return this.props.positions.filter(function(el,index) {
+    var result =  this.props.positions.filter(function(el,index) {
       return el.value.rnum === row && el.value.col === col;
     });
+
+    return result.length > 0 ? result : result = [{name: this.state.position}];
   },
   setPosition: function(keyword) {
     return this.props.positions.filter(function(el,index) {
@@ -43,14 +47,14 @@ var Knight = React.createClass({
         this.state.knight.style.top = (ev.pageY-(window.innerWidth/30)) + 'px';
         coords = this.dragCalcPos(ev.pageX,ev.pageY);
         document.addEventListener('mouseup', this.dragEnd);
-      } else {
-
       }
   },
   dragEnd: function(target,ev) {
-      var currentMove = this.state.position;
-      validMovesList = this.getValidMoves().map(function(e) { return e.name; });
-      if(u.inArray(this.getPosition(coords)[0].name, validMovesList)) {
+      var currentMove = this.state.position,
+          currentPosition = this.getPosition(coords)[0].name,
+          validMovesList = this.getValidMoves().map(function(e) { return e.name; });
+
+      if(u.inArray(currentPosition, validMovesList)) {
         this.setState({position: this.getPosition(coords)[0].name });
         this.setState({moves: []});
       } else {
@@ -80,7 +84,8 @@ var Knight = React.createClass({
     return (parseInt(this.props.size.height.replace('px','')) / 8) + 'px';
   },
   componentWillMount: function() {
-    this.state.position = 'A-1';
+    var lastPosition = this.state.position();
+    this.state.position = lastPosition ? lastPosition : 'A-1';
     this.state.style = this.updateStyles();
   },
   componentDidUpdate: function (props, state) {
@@ -88,6 +93,7 @@ var Knight = React.createClass({
      this.state.knight.removeEventListener('mousedown', this.dragStart);
      document.removeEventListener('mousemove', this.dragMotion);
      document.removeEventListener('mouseup', this.dragEnd);
+     ChessActions.savePosition(this.state.position);
    }
    this.state.style = this.updateStyles();
  },
@@ -137,16 +143,15 @@ var Knight = React.createClass({
     var pieceSize = u.depixelise(this.pieceSize());
 
     var validMoves = moves.map(function(move,index) {
-      // Try to shift to be a react component
       if(move !== false && this.state.show === false) {
 
-        var sizes = {
+        var coords = {
           top: (move.top + (pieceSize /4) )  + 'px',
           left: (leftOffset + (move.left + pieceSize /4)) + 'px',
           height: (pieceSize/2) + 'px',
           width: (pieceSize/2) + 'px'
         };
-        return(<ValidMove size={sizes} key={index} />);
+        return(<ValidMove coords={coords} key={index} />);
 
       }
     }.bind(this));

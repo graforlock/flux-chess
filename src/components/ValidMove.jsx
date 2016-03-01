@@ -17,10 +17,10 @@ var ValidMove = React.createClass({
     return {style: {}};
   },
   getInitialStyles: function() {
-    defaultStyles.left = this.props.size.left;
-    defaultStyles.top = this.props.size.top;
-    defaultStyles.height = this.props.size.height;
-    defaultStyles.width = this.props.size.width;
+    defaultStyles.left = this.props.coords.left;
+    defaultStyles.top = this.props.coords.top;
+    defaultStyles.height = this.props.coords.height;
+    defaultStyles.width = this.props.coords.width;
     return defaultStyles;
   },
   componentWillMount: function() {
