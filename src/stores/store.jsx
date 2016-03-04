@@ -5,10 +5,6 @@ var EventEmitter = require('events').EventEmitter;
 
 var CHANGE_EVENT = 'change';
 
-var _catalog = [];
-
-
-var _cartItems = [];
 
 function _retrieveFromStorage(){
   return window.localStorage.getItem('position');
@@ -44,7 +40,6 @@ var ChessStore = assign(EventEmitter.prototype, {
         _retrieveFromStorage();
         break;
       case Constants.SAVE_POSITION:
-      console.log('here');
         _saveToStorage(payload.action.position);
         break;
 
